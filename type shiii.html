@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Be My Valentine 💖</title>
+
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', sans-serif;
+    background: url("background1.jpg") no-repeat center center / cover;
+    transition: background 1.5s ease-in-out;
+  }
+
+  body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    transition: background 1.5s ease-in-out;
+    z-index: 0;
+  }
+
+  body.bg-changed::before {
+    background: rgba(0,0,0,0.2);
+  }
+
+  .card {
+    background: white;
+    padding: 40px 30px 90px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    width: 90%;
+    max-width: 360px;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  h1, h2, p {
+    min-height: 30px;
+    color: #ff4d6d;
+  }
+
+  p {
+    color: #555;
+    font-size: 18px;
+  }
+
+  .buttons {
+    margin-top: 20px;
+    display: none;
+  }
+
+  button {
+    width: 120px;
+    height: 45px;
+    font-size: 16px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+  }
+
+  #yes {
+    background: #ff4d6d;
+    color: white;
+    margin-right: 10px;
+  }
+
+  #no {
+    background: #ddd;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  #finalMessage {
+    display: none;
+    margin-top: 20px;
+    font-size: 17px;
+    color: #ff4d6d;
+    min-height: 200px;
+    white-space: pre-line;
+  }
+
+  .heart {
+    position: absolute;
+    bottom: -20px;
+    color: #ff4d6d;
+    animation: floatUp 6s linear infinite;
+    opacity: 0.8;
+    z-index: 1;
+  }
+
+  @keyframes floatUp {
+    from { transform: translateY(0); opacity: 0.8; }
+    to { transform: translateY(-100vh); opacity: 0; }
+  }
+</style>
+</head>
+
+<body>
+
+<audio id="bgMusic" loop autoplay muted>
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<div class="card" id="card">
+  <h1 id="title"></h1>
+  <p id="line1"></p>
+  <h2 id="question"></h2>
+
+  <div class="buttons" id="buttons">
+    <button id="yes">Yes 💖</button>
+    <button id="no">No 🙃</button>
+  </div>
+
+  <div id="finalMessage"></div>
+</div>
+
+<script>
+  const music = document.getElementById("bgMusic");
+  document.addEventListener("click", () => {
+    music.muted = false;
+    music.volume = 0.4;
+  }, { once: true });
+
+  const title = document.getElementById("title");
+  const line1 = document.getElementById("line1");
+  const question = document.getElementById("question");
+  const finalMessage = document.getElementById("finalMessage");
+  const buttons = document.getElementById("buttons");
+  const yesBtn = document.getElementById("yes");
+  const noBtn = document.getElementById("no");
+  const card = document.getElementById("card");
+
+  const textContent = {
+    title: "Hey Batak 💕",
+    line1: "I was wondering…",
+    question: "Will you be my Valentine? 💌",
+    final:
+`Voooo zabardasti yes krne wale kiye sorry😝
+Hehe😝
+
+Main ye aapko tabhi bhejunga jab aap so chuki hogi
+(kuki isko host krne mein time lgta hai)
+
+Now SERIOUS talk
+
+Dekh bhondu i really like you a lot
+(like bht zyada)
+
+Baad ki problems baadmein figure out krlengena pls
+
+Will you pls be my valentine😭😭??
+
+Iska reply aap mujhe text krdena
+(i would prefer call🥰, kal vaise bhi evening hai)
+
+Smjhi beautiful ❤️`
+  };
+
+  function typeText(el, text, speed, cb) {
+    let i = 0;
+    el.innerHTML = "";
+    function type() {
+      if (i < text.length) {
+        el.innerHTML += text[i];
+        i++;
+        setTimeout(type, speed);
+      } else if (cb) cb();
+    }
+    type();
+  }
+
+  typeText(title, textContent.title, 75, () => {
+    typeText(line1, textContent.line1, 70, () => {
+      typeText(question, textContent.question, 70, () => {
+        buttons.style.display = "block";
+      });
+    });
+  });
+
+  function moveNoButton() {
+    const cardRect = card.getBoundingClientRect();
+    const btnRect = noBtn.getBoundingClientRect();
+    const x = Math.random() * (cardRect.width - btnRect.width);
+    const y = Math.random() * (cardRect.height - btnRect.height - 40);
+    noBtn.style.left = x + "px";
+    noBtn.style.top = y + "px";
+    noBtn.style.transform = "none";
+  }
+
+  noBtn.addEventListener("mouseenter", moveNoButton);
+  noBtn.addEventListener("touchstart", moveNoButton);
+
+  yesBtn.onclick = () => {
+    yesBtn.disabled = true;
+    buttons.style.display = "none";   // 👈 YES & NO BOTH REMOVED
+
+    document.body.style.background =
+      'url("background2.jpg") no-repeat center center / cover';
+    document.body.classList.add("bg-changed");
+
+    finalMessage.style.display = "block";
+    typeText(finalMessage, textContent.final, 55);
+    explodeHearts();
+  };
+
+  function createHeart() {
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.innerHTML = "❤";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.fontSize = (15 + Math.random() * 20) + "px";
+    heart.style.animationDuration = (4 + Math.random() * 3) + "s";
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 7000);
+  }
+  setInterval(createHeart, 400);
+
+  function explodeHearts() {
+    for (let i = 0; i < 30; i++) {
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.innerHTML = "❤";
+      heart.style.left = "50vw";
+      heart.style.bottom = "50vh";
+      heart.style.fontSize = "26px";
+      heart.style.animationDuration = "2s";
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 2000);
+    }
+  }
+</script>
+
+</body>
+</html>
